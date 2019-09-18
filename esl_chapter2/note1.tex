@@ -189,7 +189,7 @@ in T closest to x)
     \\ \frac{\partial{EPE(\beta)}}{\partial{\beta}} &= 
     \int_{x}{y} -X^T (y - X \beta) Pr(X = x, Y = y)
     dx dy \notag \\ 
-    &=\beta E[X^TX] - E[X^T, y]
+    &=\beta E[X^TX] - E[X^T y]
 \end{align}
 
 we set equation (4) to 0, we get $\beta = [E[X^T X]]^{-1} E[X^T y]$
@@ -211,6 +211,66 @@ X^T y$进行对比,最小二乘法的解相当于用训练数据的平均值替�
 \begin{equation}
   \hat{f}(x) = median(Y|X=x) 
 \end{equation}
+
+如果输出变量是一个分类变量呢？我们依然可以使用同一个范式进行处理，除了
+使用一个不同的损失函数。一个估计变量$\hat{G}$，损失函数可以被表示为
+一个$K \times K$ 的矩阵$L$，其中$L$的对角元素为0，非对角元素为非负
+整数，其中$L(k, l)$ 是将原本是$G_l$的类错分为$G_k$类所付出的代价。
+同样我们可以先求出expected prediction error:
+
+\begin{align}
+  EPE = E[L(G, \hat{G}(X))]
+\end{align}
+
+同样，上式的期望依赖于联合概率分布$Pr(G, X)$
+
+\begin{align}
+  EPE &= \int_{i=1}^{k} \int_{j=1}^{n} L(G_i, \hat{G}(x_j)) 
+  Pr(G_k = m, X = x_j) \\
+  &= E_X \int_{k=1}^{K} L(G_k, \hat{G}(X)) Pr(G_k|X)
+\end{align}
+
+可以注意到，期望里面的部分始终非负，为了最小化整个期望，我们可以最小化
+期望里面的部分
+
+\begin{align}
+  \hat{G}(x) &= \argmin_{g \in G} \int_{k = 1}^{K} L(G_k, g)
+  Pr(G_k | X = x) \\ 
+  &= \argmin_{g \in G} [1 - Pr(g|X=x)]
+\end{align}
+
+(10)式可以改写为$\hat{G}(X) = G_k \ if \ Pr(G_k|X=x) = \max_{g \in G}
+Pr(g | X = x)$
+
+这个合理的结果为成为Bayes classifier.
+
+\section{高维问题的局部方法}
+我们已经证明了两种在预测预测问题中的学习策略：稳定但是带有偏差的线性模型，
+不太稳定但是具有较小偏差的k-最近邻估计。
+
+那么我们可能会认为,只要给予足够大的训练数据，k-nearest算法理论上就能够逼近最优解(条件期望)，
+但是这种方法在高维情况下就会失败
+
+下面我们将要讨论维数灾难(curse of dimensionality)。主要有两点
+\begin{itemize}
+  \item 如果我们想使用k-nearest算法来获得neighbor中的点，其与整个空间中的点的比例为
+  r，由于空间与线段的关系，想要获得一定比例的数据，我们需要更长的线段来满足这一条件，
+  比如在一个边长为1的十维的超立方体中，我们想要获得$1\%$的数据，需要付出0.63的边长。 
+  \item 另外，如果在一个高维空间中进行稀疏取样，会使得所有的样本点离样本的某一边很近
+\end{itemize}
+
+\section{统计模型，监督学习和函数逼近}
+我们的目标在于找到一个对$f(x)$的有效逼近$\hat{f}(x)$，能够有效的表示出
+输入和输出之间的映射关系。从之前的章节可以知道，对于变量连续的情况下，
+回归函数$f(x) = E(Y | X = x)$。最近邻算法可以被看作是对这种条件期望的
+一种直接估计。但是我们看到了，至少在两种情况下，该方法会失败
+\begin{itemize}
+  \item 如果输入空间的维数太高，会使得最近邻不需要离目标点距离近，导致较大的误差。
+  \item If special structure is known to exist, this can be used to reduce both the 
+  bias and the variance of the estimates. (不懂) 
+\end{itemize}
+
+
 
 
 \end{document}
